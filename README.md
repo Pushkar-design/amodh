@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Amodh hotel site
 
-## Getting Started
+Next.js app with a public marketing site and a single-page **`/admin`** dashboard (rooms, bookings, WhatsApp settings). Data lives in [Supabase](https://supabase.com/) (Postgres + Auth).
 
-First, run the development server:
+## Environment variables
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+| Variable | Purpose |
+|----------|---------|
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Legacy anon key (browser + server cookie client) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY` | Newer publishable key (use this **or** anon) |
+| `SUPABASE_SERVICE_ROLE_KEY` | Service role (API routes only; never expose to the client) |
+| `ADMIN_ALLOWED_EMAILS` | Optional comma-separated emails allowed to use admin after sign-in |
+
+**Admin access:** An email is allowed if it appears in `ADMIN_ALLOWED_EMAILS` **or** in the `admin_emails` table (lowercase). In **development**, if `ADMIN_ALLOWED_EMAILS` is unset, any signed-in user can open admin. In **production**, if `ADMIN_ALLOWED_EMAILS` is unset, only rows in `admin_emails` grant access.
+
+## Supabase Auth: password reset
+
+1. In the Supabase dashboard: **Authentication → URL configuration**, add your site URLs to **Redirect URLs**, including:
+   - `http://localhost:3000/auth/callback` (local)
+   - `https://<your-production-domain>/auth/callback`
+2. The admin login screen uses **Forgot password?** with `redirectTo` set to `{origin}/auth/callback?next=/admin`.
+3. Ensure the **Reset password** email template is enabled.
+
+## Database
+
+**Fastest (new project):** run everything in one go.
+
+1. **Supabase Dashboard → SQL Editor → New query**, paste [`supabase/complete-setup.sql`](supabase/complete-setup.sql), then **Run**.  
+   This creates `rooms`, `bookings`, `hotel_settings`, `admin_emails`, seeds three rooms, sets RLS, and adds `rooms.description`.
+
+2. **Or from your machine:** add `DATABASE_URL` to `.env.local` (Supabase → **Project Settings → Database → Connection string → URI**, with your DB password), then:
+
+   ```bash
+   npm run db:apply
+   ```
+
+Incremental / older setups can still use [`supabase/schema.sql`](supabase/schema.sql) plus [`supabase/migrations/`](supabase/migrations/) or [`supabase/one-shot-guest-admin.sql`](supabase/one-shot-guest-admin.sql) as before.
+
+Invite staff in **Authentication → Users**, then either add their email to `ADMIN_ALLOWED_EMAILS` or insert into `admin_emails`:
+
+```sql
+INSERT INTO admin_emails (email) VALUES ('name@example.com')
+ON CONFLICT (email) DO NOTHING;
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Development
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open [http://localhost:3000](http://localhost:3000). Admin: [http://localhost:3000/admin](http://localhost:3000/admin).
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Supabase + Next.js](https://supabase.com/docs/guides/getting-started/quickstarts/nextjs)

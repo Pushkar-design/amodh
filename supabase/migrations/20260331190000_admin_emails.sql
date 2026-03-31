@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS admin_emails (
+  email TEXT PRIMARY KEY
+);
+
+ALTER TABLE admin_emails ENABLE ROW LEVEL SECURITY;
