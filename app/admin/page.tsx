@@ -11,7 +11,7 @@ import { AdminRoomImageField } from "@/components/AdminRoomImageField";
 import { createClient } from "@/lib/supabaseClient";
 import { isDateOverlap } from "@/utils/dateOverlap";
 
-type AdminGate = "unknown" | "allowed" | "denied";
+type AdminGate = "unknown" | "allowed" | "denied" | "error";
 
 type AdminBookingRow = BookingWithRoom & {
   rooms: { name: string } | null;
@@ -36,6 +36,8 @@ export default function AdminPage() {
     null
   );
   const [gate, setGate] = useState<AdminGate>("unknown");
+  const [accessCheckError, setAccessCheckError] = useState<string | null>(null);
+  const [configError, setConfigError] = useState<string | null>(null);
 
   const [bookings, setBookings] = useState<AdminBookingRow[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -113,14 +115,45 @@ export default function AdminPage() {
   }, [bookings, rooms]);
 
   const loadProtected = useCallback(async () => {
-    const [bRes, rRes, sRes] = await Promise.all([
-      fetch("/api/admin/bookings", { credentials: "same-origin" }),
-      fetch("/api/admin/rooms", { credentials: "same-origin" }),
-      fetch("/api/settings", { credentials: "same-origin" }),
-    ]);
+    setAccessCheckError(null);
+    let bRes: Response;
+    let rRes: Response;
+    let sRes: Response;
+    try {
+      [bRes, rRes, sRes] = await Promise.all([
+        fetch("/api/admin/bookings", { credentials: "same-origin" }),
+        fetch("/api/admin/rooms", { credentials: "same-origin" }),
+        fetch("/api/settings", { credentials: "same-origin" }),
+      ]);
+    } catch {
+      setGate("error");
+      setAccessCheckError(
+        "Could not reach the admin API. Check your network or try again."
+      );
+      setBookings([]);
+      setRooms([]);
+      return;
+    }
 
-    if (bRes.status === 401) {
+    if (bRes.status === 401 || rRes.status === 401) {
       setGate("denied");
+      setBookings([]);
+      setRooms([]);
+      return;
+    }
+
+    if (!bRes.ok) {
+      setGate("error");
+      let detail = "";
+      try {
+        const j = (await bRes.json()) as { error?: string };
+        if (j.error) detail = ` ${j.error}`;
+      } catch {
+        /* ignore */
+      }
+      setAccessCheckError(
+        `Admin API returned ${bRes.status}.${detail} If this is a new deploy, confirm SUPABASE_SERVICE_ROLE_KEY is set on the server.`
+      );
       setBookings([]);
       setRooms([]);
       return;
@@ -136,7 +169,19 @@ export default function AdminPage() {
   }, []);
 
   useEffect(() => {
-    const supabase = createClient();
+    let supabase: ReturnType<typeof createClient>;
+    try {
+      supabase = createClient();
+    } catch (e) {
+      setConfigError(
+        e instanceof Error
+          ? e.message
+          : "Missing Supabase browser configuration."
+      );
+      setBootstrapped(true);
+      return;
+    }
+
     let cancelled = false;
 
     void (async () => {
@@ -161,6 +206,7 @@ export default function AdminPage() {
         setBookings([]);
         setRooms([]);
         setGate("unknown");
+        setAccessCheckError(null);
       }
     });
 
@@ -410,6 +456,29 @@ export default function AdminPage() {
     );
   }
 
+  if (configError) {
+    return (
+      <>
+        <HotelAmodhHeader />
+        <main className="mx-auto max-w-lg flex-1 px-4 pt-28 pb-16">
+          <h1 className="font-serif text-2xl text-[#36454F]">
+            Sign-in unavailable
+          </h1>
+          <p className="mt-3 text-sm text-[#36454F]/75">{configError}</p>
+          <p className="mt-2 text-sm text-[#36454F]/65">
+            Add the same public Supabase variables you use on the server to your
+            deployment (they must start with{" "}
+            <code className="rounded bg-[#36454F]/10 px-1">NEXT_PUBLIC_</code>
+            ), then redeploy.
+          </p>
+          <Link href="/" className="mt-8 block text-center text-[#8A9A5B]">
+            ← Home
+          </Link>
+        </main>
+      </>
+    );
+  }
+
   if (!user) {
     return (
       <>
@@ -532,6 +601,33 @@ export default function AdminPage() {
       <>
         <HotelAmodhHeader />
         <AdminAccessDeniedPanel email={user.email} />
+      </>
+    );
+  }
+
+  if (gate === "error") {
+    return (
+      <>
+        <HotelAmodhHeader />
+        <main className="mx-auto max-w-lg flex-1 px-4 pt-28 pb-16">
+          <h1 className="font-serif text-2xl text-[#36454F]">
+            Could not load admin
+          </h1>
+          <p className="mt-3 text-sm text-[#36454F]/75">
+            {accessCheckError ??
+              "Something went wrong while checking your access."}
+          </p>
+          <button
+            type="button"
+            className="mt-6 min-h-12 rounded-full bg-[#8A9A5B] px-6 text-white"
+            onClick={() => void loadProtected()}
+          >
+            Try again
+          </button>
+          <Link href="/" className="mt-6 block text-center text-[#8A9A5B]">
+            ← Home
+          </Link>
+        </main>
       </>
     );
   }
