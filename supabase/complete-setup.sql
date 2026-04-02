@@ -66,6 +66,17 @@ ALTER TABLE public.rooms
 
 COMMENT ON COLUMN public.rooms.description IS 'Marketing / vibe copy shown on the public site and editable in the admin dashboard.';
 
+-- Occupancy, extra bed, global meals (matches migrations/20260402120000_rooms_occupancy_meals_settings.sql)
+ALTER TABLE public.rooms
+  ADD COLUMN IF NOT EXISTS max_occupancy INTEGER NOT NULL DEFAULT 2,
+  ADD COLUMN IF NOT EXISTS extra_bed_note TEXT;
+
+ALTER TABLE public.hotel_settings
+  ADD COLUMN IF NOT EXISTS meals_enabled BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS meal_breakfast_pp_night NUMERIC(10, 2),
+  ADD COLUMN IF NOT EXISTS meal_lunch_pp_night NUMERIC(10, 2),
+  ADD COLUMN IF NOT EXISTS meal_dinner_pp_night NUMERIC(10, 2);
+
 -- Ensure no public SELECT on bookings (matches migrations/bookings_rls)
 DROP POLICY IF EXISTS "Allow public read bookings" ON bookings;
 

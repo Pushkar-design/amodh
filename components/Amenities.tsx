@@ -11,21 +11,18 @@ const IMG_SPA =
 
 export function Amenities() {
   return (
-    <section
-      id="services"
-      className="scroll-mt-28 bg-surface-container-low px-6 py-24 sm:px-10 sm:py-32"
-    >
+    <section className="bg-surface-container-low px-4 py-16 sm:px-8 sm:py-24 md:px-10 md:py-28 lg:py-32">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-16 text-center sm:mb-20">
-          <span className="mb-4 block font-label text-xs uppercase tracking-[0.4em] text-primary">
-            Curated Services
+        <div className="mb-12 text-center sm:mb-16 md:mb-20">
+          <span className="mb-3 block font-label text-[10px] uppercase tracking-[0.35em] text-primary sm:text-xs sm:tracking-[0.4em]">
+            Sanctuary services
           </span>
-          <h2 className="font-serif-display text-4xl text-on-surface sm:text-5xl">
+          <h2 className="text-balance font-serif-display text-4xl text-on-surface sm:text-5xl md:text-6xl">
             The Art of Living Well
           </h2>
         </div>
 
-        <div className="grid h-auto grid-cols-1 gap-6 md:h-[800px] md:grid-cols-4 md:grid-rows-2">
+        <div className="grid h-auto grid-cols-1 gap-4 sm:gap-6 md:min-h-[min(800px,88vh)] md:grid-cols-4 md:grid-rows-2 lg:h-[800px] lg:min-h-0">
           <div className="group relative overflow-hidden rounded-xl bg-on-surface md:col-span-2 md:row-span-2">
             <Image
               src={IMG_DINING}
@@ -38,7 +35,7 @@ export function Amenities() {
               <span className="mb-2 block font-label text-[10px] uppercase tracking-widest text-primary-fixed">
                 Cuisine
               </span>
-              <h3 className="mb-4 font-serif-display text-3xl text-white">
+              <h3 className="mb-4 font-serif-display text-4xl text-white">
                 Fine Dining
               </h3>
               <p className="max-w-xs font-body text-sm text-stone-300 opacity-0 transition-opacity duration-500 group-hover:opacity-100">
@@ -57,7 +54,7 @@ export function Amenities() {
               sizes="(max-width: 768px) 100vw, 50vw"
             />
             <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-on-surface/60 to-transparent p-8">
-              <h3 className="mb-2 font-serif-display text-2xl text-white">
+              <h3 className="mb-2 font-serif-display text-3xl text-white">
                 Infinity Pool
               </h3>
               <span
@@ -78,7 +75,7 @@ export function Amenities() {
               sizes="(max-width: 768px) 100vw, 25vw"
             />
             <div className="absolute inset-0 flex flex-col justify-end bg-gradient-to-t from-on-surface/60 to-transparent p-6">
-              <h3 className="font-serif-display text-xl text-white">
+              <h3 className="font-serif-display text-2xl text-white">
                 The Spa
               </h3>
             </div>
@@ -90,7 +87,7 @@ export function Amenities() {
                 doorbell
               </span>
               <div>
-                <h3 className="mb-2 font-serif-display text-xl">
+                <h3 className="mb-2 font-serif-display text-2xl">
                   24/7 Concierge
                 </h3>
                 <p className="font-body text-xs leading-relaxed opacity-80">

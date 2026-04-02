@@ -6,7 +6,9 @@ CREATE TABLE IF NOT EXISTS rooms (
   name TEXT NOT NULL,
   price_per_night NUMERIC(10, 2) NOT NULL DEFAULT 0,
   is_available BOOLEAN NOT NULL DEFAULT true,
-  image_url TEXT
+  image_url TEXT,
+  max_occupancy INTEGER NOT NULL DEFAULT 2,
+  extra_bed_note TEXT
 );
 
 CREATE TABLE IF NOT EXISTS bookings (
@@ -23,7 +25,13 @@ CREATE TABLE IF NOT EXISTS bookings (
 
 CREATE TABLE IF NOT EXISTS hotel_settings (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  whatsapp_number TEXT NOT NULL DEFAULT ''
+  whatsapp_number TEXT NOT NULL DEFAULT '',
+  contact_phone TEXT NOT NULL DEFAULT '',
+  contact_email TEXT NOT NULL DEFAULT '',
+  meals_enabled BOOLEAN NOT NULL DEFAULT false,
+  meal_breakfast_pp_night NUMERIC(10, 2),
+  meal_lunch_pp_night NUMERIC(10, 2),
+  meal_dinner_pp_night NUMERIC(10, 2)
 );
 
 -- Single settings row pattern

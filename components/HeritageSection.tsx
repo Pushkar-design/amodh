@@ -10,18 +10,18 @@ export function HeritageSection() {
   return (
     <section
       id="heritage"
-      className="mx-auto max-w-7xl overflow-hidden px-6 py-24 sm:px-10 sm:py-32"
+      className="mx-auto max-w-7xl overflow-hidden px-4 py-20 sm:px-8 sm:py-24 md:px-10 md:py-28 lg:py-32"
     >
-      <div className="grid grid-cols-1 items-center gap-16 md:grid-cols-12 md:gap-20">
+      <div className="grid grid-cols-1 items-center gap-14 md:grid-cols-12 md:gap-16 lg:gap-20">
         <div className="md:col-span-5">
           <span className="mb-4 block font-label text-xs uppercase tracking-[0.3em] text-primary">
             Our Heritage
           </span>
-          <h2 className="mb-8 font-serif-display text-4xl leading-tight text-on-surface md:text-6xl">
+          <h2 className="mb-8 font-serif-display text-5xl leading-tight text-on-surface md:text-6xl lg:text-7xl">
             A Sanctuary carved in stone and light.
           </h2>
           <p className="mb-8 font-body text-lg leading-relaxed text-secondary">
-            Hotel Amodh is more than a destination; it is a curated silence.
+            Hotel Amod is more than a destination; it is a curated silence.
             Located in the heart of the valley, we blend the raw textures of
             the earth with the precision of modern luxury. Every corner is
             designed to breathe.
@@ -36,26 +36,26 @@ export function HeritageSection() {
             </span>
           </div>
         </div>
-        <div className="relative md:col-span-7">
-          <div className="grid grid-cols-2 items-end gap-6">
-            <div className="relative pt-12 sm:pt-20">
+        <div className="md:col-span-7">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-12 sm:items-stretch sm:gap-6">
+            <div className="sm:col-span-7">
               <Image
                 src={IMG_INTERIOR}
                 alt="Minimalist suite interior"
-                width={600}
-                height={800}
-                className="aspect-[3/4] w-full rounded-lg object-cover shadow-xl"
-                sizes="(max-width: 768px) 50vw, 40vw"
+                width={720}
+                height={960}
+                className="aspect-[3/4] w-full rounded-xl object-cover shadow-xl"
+                sizes="(max-width: 640px) 100vw, 45vw"
               />
             </div>
-            <div className="relative">
+            <div className="flex flex-col justify-center sm:col-span-5">
               <Image
                 src={IMG_DETAIL}
                 alt="Architectural detail"
-                width={500}
-                height={500}
-                className="aspect-square w-full -translate-x-4 scale-110 rounded-lg object-cover shadow-2xl sm:-translate-x-8"
-                sizes="(max-width: 768px) 50vw, 35vw"
+                width={560}
+                height={560}
+                className="aspect-square w-full max-w-md rounded-xl object-cover shadow-xl sm:max-w-none"
+                sizes="(max-width: 640px) 100vw, 38vw"
               />
             </div>
           </div>

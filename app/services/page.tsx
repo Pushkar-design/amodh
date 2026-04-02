@@ -16,14 +16,14 @@ export default function ServicesPage() {
     <>
       <HotelAmodhHeader />
       <main className="flex-1 bg-surface pb-24 pt-28 sm:pt-32">
-        <header className="mx-auto mb-20 max-w-7xl px-6 text-center sm:mb-24 sm:px-10">
-          <span className="mb-4 inline-block font-label text-[0.7rem] uppercase tracking-[0.3em] text-primary">
-            Curated Experiences
+        <header className="mx-auto mb-16 max-w-7xl px-4 text-center sm:mb-20 sm:px-8 md:mb-24 md:px-10">
+          <span className="mb-3 inline-block font-label text-[10px] uppercase tracking-[0.3em] text-primary sm:mb-4 sm:text-[0.7rem] sm:tracking-[0.35em]">
+            Sanctuary services
           </span>
-          <h1 className="font-headline text-4xl leading-tight tracking-tight text-on-surface sm:text-6xl md:text-7xl">
+          <h1 className="text-balance font-headline text-3xl leading-tight tracking-tight text-on-surface sm:text-5xl md:text-6xl lg:text-7xl">
             Amenities &amp; Services
           </h1>
-          <p className="mx-auto mt-8 max-w-2xl font-body text-lg font-light italic text-secondary">
+          <p className="mx-auto mt-6 max-w-2xl text-pretty px-1 font-body text-base font-light italic text-secondary sm:mt-8 sm:px-0 sm:text-lg">
             A sanctuary designed for restoration, where the boundaries between
             nature and luxury dissolve.
           </p>
@@ -53,7 +53,7 @@ export default function ServicesPage() {
                 Rejuvenate your essence in our private forest pavilions.
               </p>
               <Link
-                href="/contact"
+                href="/#contact"
                 className="group inline-flex items-center gap-2 font-body font-medium text-primary"
               >
                 Discover Rituals
@@ -80,7 +80,7 @@ export default function ServicesPage() {
                 Experience contemporary fine dining under a canopy of stars.
               </p>
               <Link
-                href="/contact"
+                href="/#contact"
                 className="group inline-flex items-center gap-2 font-body font-medium text-primary"
               >
                 View the Menu
@@ -126,7 +126,7 @@ export default function ServicesPage() {
                 valley. A place where the sky meets the water.
               </p>
               <Link
-                href="/contact"
+                href="/#contact"
                 className="inline-block bg-primary px-10 py-3 font-label text-sm tracking-widest text-on-primary"
               >
                 PRIVATE LOUNGE

@@ -3,7 +3,7 @@ import { createServiceClient } from "@/lib/supabaseServer";
 import { isAdminAuthenticated } from "@/lib/supabaseServerAuth";
 
 const ROOM_SELECT =
-  "id, name, price_per_night, is_available, image_url, description";
+  "id, name, price_per_night, is_available, image_url, description, max_occupancy, extra_bed_note";
 
 export async function GET() {
   if (!(await isAdminAuthenticated())) {

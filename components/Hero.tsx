@@ -1,45 +1,65 @@
-"use client";
-
-import Image from "next/image";
 import Link from "next/link";
 
-const HERO_IMAGE =
+type HeroProps = {
+  /** Default `/` home; use `/preview-amod#rooms` on preview route */
+  roomsHref?: string;
+};
+
+const HERO_POSTER =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuBaEFctgVMCMwrnKdN7ctVMYNxMxobqFMTCnWMIpJBg7R4K8QIlEIG4_P1itqSMjLd9PVLlsGZtoZFiVMD8_KzqvfRGyTJN1JyfKuP83R6E8wXMUTfdZSvVhCcy9dKJjBINRIWrC1PQ322KCyFv6AEtg798JiQ_uHOgoNKB2tNLPCvFKFwtfSg3EX3HlI_oa4pfBZpmbnOWvNfcnnFK55f93en02vEqXXfCmsJPVOoT-s7nv4Qs_24vyYa9KSkh-QcDSDzEbC6ushM";
 
-export function Hero() {
+export function Hero({ roomsHref = "/#rooms" }: HeroProps) {
+  const videoSrc = process.env.NEXT_PUBLIC_HERO_VIDEO_URL;
+
   return (
-    <section className="relative flex h-screen w-full items-center justify-center overflow-hidden">
+    <section
+      id="home"
+      className="relative flex min-h-[100dvh] min-h-screen w-full scroll-mt-28 items-center justify-center overflow-hidden"
+    >
       <div className="absolute inset-0 z-0">
-        <Image
-          src={HERO_IMAGE}
-          alt="Hotel Amodh exterior at twilight"
-          fill
-          priority
-          className="object-cover"
-          sizes="100vw"
+        {videoSrc ? (
+          <video
+            className="h-full w-full object-cover"
+            autoPlay
+            muted
+            loop
+            playsInline
+            poster={HERO_POSTER}
+            aria-hidden
+          >
+            <source src={videoSrc} type="video/mp4" />
+          </video>
+        ) : (
+          <div
+            className="h-full w-full bg-cover bg-center"
+            style={{ backgroundImage: `url(${HERO_POSTER})` }}
+            aria-hidden
+          />
+        )}
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-foreground/25 via-foreground/20 to-foreground/35"
+          aria-hidden
         />
-        <div className="absolute inset-0 bg-on-surface/30" aria-hidden />
       </div>
-      <div className="relative z-10 px-4 text-center">
-        <span className="mb-6 inline-block animate-[fadeIn_1s_ease-out_forwards] font-label text-xs uppercase tracking-[0.4em] text-white/90 opacity-0">
-          Est. 1924
-        </span>
-        <h1 className="mb-8 font-serif-display text-5xl italic leading-tight tracking-tight text-white md:text-8xl">
-          Quiet Luxury. <br />
-          <span className="not-italic">Timeless Soul.</span>
+      <div className="relative z-10 max-w-4xl px-6 text-center">
+        <p className="animate-fade-rise mb-8 font-label text-[10px] font-medium uppercase tracking-[0.42em] text-white/85">
+          Amod
+        </p>
+        <h1 className="font-serif-display text-4xl font-normal leading-[1.12] tracking-tight text-white sm:text-6xl md:text-7xl">
+          Where{" "}
+          <span className="text-white/72">joy lingers</span> in the{" "}
+          <span className="text-white/72">air.</span>
         </h1>
-        <div className="mt-12 flex flex-col items-center justify-center gap-6 md:flex-row">
+        <p className="animate-fade-rise-delayed mx-auto mt-8 max-w-md font-body text-base font-normal leading-relaxed text-white/88 sm:text-lg">
+          A quiet invitation — warmth, stillness, and the gentle pull of scent
+          and light. Slow luxury, felt rather than announced.
+        </p>
+        <div className="animate-fade-rise-delayed mt-12 flex justify-center">
           <Link
-            href="/#rooms"
-            className="rounded-md bg-white px-12 py-4 text-center font-label text-xs font-bold uppercase tracking-widest text-on-surface transition-all duration-300 hover:bg-surface-container-lowest"
+            href={roomsHref}
+            className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/35 bg-white/10 px-10 py-3 font-label text-xs font-medium uppercase tracking-[0.22em] text-white backdrop-blur-md transition-transform duration-500 ease-out hover:scale-[1.02] hover:bg-white/16 motion-reduce:transform-none"
           >
-            Explore Rooms
-          </Link>
-          <Link
-            href="/services"
-            className="rounded-md border border-white/40 px-12 py-4 text-center font-label text-xs font-bold uppercase tracking-widest text-white backdrop-blur-md transition-all duration-300 hover:bg-white/10"
-          >
-            The Experience
+            Book Your Stay
           </Link>
         </div>
       </div>

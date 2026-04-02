@@ -22,6 +22,10 @@ export function AdminRoomCard({ room, onChanged }: Props) {
   const [name, setName] = useState(room.name);
   const [imageUrl, setImageUrl] = useState<string | null>(room.image_url);
   const [price, setPrice] = useState(String(room.price_per_night));
+  const [maxOccupancy, setMaxOccupancy] = useState(
+    String(room.max_occupancy ?? 2)
+  );
+  const [extraBedNote, setExtraBedNote] = useState(room.extra_bed_note ?? "");
   const [description, setDescription] = useState(room.description ?? "");
   const [available, setAvailable] = useState(room.is_available);
   const [saving, setSaving] = useState(false);
@@ -32,6 +36,8 @@ export function AdminRoomCard({ room, onChanged }: Props) {
     setName(room.name);
     setImageUrl(room.image_url);
     setPrice(String(room.price_per_night));
+    setMaxOccupancy(String(room.max_occupancy ?? 2));
+    setExtraBedNote(room.extra_bed_note ?? "");
     setDescription(room.description ?? "");
     setAvailable(room.is_available);
   }, [room]);
@@ -49,6 +55,8 @@ export function AdminRoomCard({ room, onChanged }: Props) {
           name: name.trim(),
           image_url: imageUrl,
           price_per_night: Number(price),
+          max_occupancy: Math.round(Number(maxOccupancy)),
+          extra_bed_note: extraBedNote.trim() || null,
           description: description.trim() || null,
           is_available: available,
         }),
@@ -114,7 +122,8 @@ export function AdminRoomCard({ room, onChanged }: Props) {
         <div className="min-w-0 flex-1">
           <p className="font-medium text-[#36454F]">{room.name}</p>
           <p className="text-sm text-[#36454F]/65">
-            {formatMoney(Number(room.price_per_night))} / night
+            {formatMoney(Number(room.price_per_night))} / night · max{" "}
+            {room.max_occupancy ?? 2} guests
           </p>
         </div>
         <span className="text-[#36454F]/40">{open ? "▲" : "▼"}</span>
@@ -152,6 +161,30 @@ export function AdminRoomCard({ room, onChanged }: Props) {
               onChange={(e) => setPrice(e.target.value)}
               className="min-h-12 rounded-lg border border-[#36454F]/20 px-4"
               required
+            />
+          </label>
+
+          <label className="flex flex-col gap-2 text-sm text-[#36454F]">
+            Max guests
+            <input
+              type="number"
+              min={1}
+              max={50}
+              value={maxOccupancy}
+              onChange={(e) => setMaxOccupancy(e.target.value)}
+              className="min-h-12 rounded-lg border border-[#36454F]/20 px-4"
+              required
+            />
+          </label>
+
+          <label className="flex flex-col gap-2 text-sm text-[#36454F]">
+            Extra bed note (optional)
+            <input
+              type="text"
+              value={extraBedNote}
+              onChange={(e) => setExtraBedNote(e.target.value)}
+              className="min-h-12 rounded-lg border border-[#36454F]/20 px-4"
+              placeholder="Shown on the public room card"
             />
           </label>
 

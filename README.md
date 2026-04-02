@@ -53,6 +53,14 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000). Admin: [http://localhost:3000/admin](http://localhost:3000/admin).
 
+## Usability testing
+
+Materials for moderated studies (recruit brief, moderator script, observation log, synthesis template) live in [`docs/usability-testing/`](docs/usability-testing/).
+
+1. Bootstrap the DB ([`supabase/complete-setup.sql`](supabase/complete-setup.sql) or existing migrations).
+2. In **Supabase → SQL Editor**, run [`supabase/usability-test-seed.sql`](supabase/usability-test-seed.sql) to enable meals + WhatsApp settings and add a **seed booking** that blocks one room for mid–May 2026 (use suggested dates in the script comments).
+3. Share **`/preview-amod`** if you need correct in-page anchors on a non-root deploy path. See [`.env.example`](.env.example) notes under “Usability / moderated testing”.
+
 ## Learn More
 
 - [Next.js Documentation](https://nextjs.org/docs)

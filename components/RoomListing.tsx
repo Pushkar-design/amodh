@@ -6,6 +6,7 @@ import type { Booking, Room } from "@/types/hotel";
 import { isDateOverlap } from "@/utils/dateOverlap";
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { useBookingStore } from "@/store/useBookingStore";
+import { normalizeRoom } from "@/lib/normalizeRoom";
 import {
   isGoogleDriveImageHost,
   resolveDisplayImageUrl,
@@ -46,7 +47,7 @@ export function RoomListing() {
       const res = await fetch("/api/rooms");
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load rooms");
-      setRooms(data.rooms ?? []);
+      setRooms((data.rooms ?? []).map(normalizeRoom));
     } catch (e) {
       setRoomsError(e instanceof Error ? e.message : "Something went wrong");
       setRooms([]);
@@ -211,7 +212,11 @@ export function RoomListing() {
                       checked={checked}
                       disabled={disabled}
                       onChange={() =>
-                        toggleRoom({ id: room.id, name: room.name })
+                        toggleRoom({
+                          id: room.id,
+                          name: room.name,
+                          price_per_night: Number(room.price_per_night),
+                        })
                       }
                       className="h-5 w-5 rounded border-outline-variant text-primary focus:ring-primary"
                     />

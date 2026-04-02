@@ -9,6 +9,7 @@ import { AdminAccessDeniedPanel } from "@/components/AdminAccessDeniedPanel";
 import { AdminRoomCard } from "@/components/AdminRoomCard";
 import { AdminRoomImageField } from "@/components/AdminRoomImageField";
 import { createClient } from "@/lib/supabaseClient";
+import { normalizeRoom } from "@/lib/normalizeRoom";
 import { isDateOverlap } from "@/utils/dateOverlap";
 
 type AdminGate = "unknown" | "allowed" | "denied" | "error";
@@ -42,6 +43,12 @@ export default function AdminPage() {
   const [bookings, setBookings] = useState<AdminBookingRow[]>([]);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [whatsapp, setWhatsapp] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
+  const [contactEmail, setContactEmail] = useState("");
+  const [mealsEnabled, setMealsEnabled] = useState(false);
+  const [mealBreakfast, setMealBreakfast] = useState("");
+  const [mealLunch, setMealLunch] = useState("");
+  const [mealDinner, setMealDinner] = useState("");
   const [settingsSaving, setSettingsSaving] = useState(false);
 
   const [newBooking, setNewBooking] = useState({
@@ -69,11 +76,15 @@ export default function AdminPage() {
   const [newRoom, setNewRoom] = useState<{
     name: string;
     price_per_night: string;
+    max_occupancy: string;
+    extra_bed_note: string;
     description: string;
     image_url: string | null;
   }>({
     name: "",
     price_per_night: "",
+    max_occupancy: "2",
+    extra_bed_note: "",
     description: "",
     image_url: null,
   });
@@ -164,8 +175,36 @@ export default function AdminPage() {
     const rJson = await rRes.json();
     const sJson = await sRes.json();
     if (bRes.ok) setBookings(bJson.bookings ?? []);
-    if (rRes.ok) setRooms(rJson.rooms ?? []);
-    if (sRes.ok) setWhatsapp(sJson.whatsapp_number ?? "");
+    if (rRes.ok)
+      setRooms((rJson.rooms ?? []).map(normalizeRoom));
+    if (sRes.ok) {
+      setWhatsapp(
+        typeof sJson.whatsapp_number === "string" ? sJson.whatsapp_number : ""
+      );
+      setContactPhone(
+        typeof sJson.contact_phone === "string" ? sJson.contact_phone : ""
+      );
+      setContactEmail(
+        typeof sJson.contact_email === "string" ? sJson.contact_email : ""
+      );
+      setMealsEnabled(Boolean(sJson.meals_enabled));
+      setMealBreakfast(
+        sJson.meal_breakfast_pp_night != null &&
+          sJson.meal_breakfast_pp_night !== ""
+          ? String(sJson.meal_breakfast_pp_night)
+          : ""
+      );
+      setMealLunch(
+        sJson.meal_lunch_pp_night != null && sJson.meal_lunch_pp_night !== ""
+          ? String(sJson.meal_lunch_pp_night)
+          : ""
+      );
+      setMealDinner(
+        sJson.meal_dinner_pp_night != null && sJson.meal_dinner_pp_night !== ""
+          ? String(sJson.meal_dinner_pp_night)
+          : ""
+      );
+    }
   }, []);
 
   useEffect(() => {
@@ -378,7 +417,15 @@ export default function AdminPage() {
     setRoomActionError(null);
     const name = newRoom.name.trim();
     const price = Number(newRoom.price_per_night);
-    if (!name || !Number.isFinite(price) || price < 0) return;
+    const maxOcc = Math.round(Number(newRoom.max_occupancy));
+    if (
+      !name ||
+      !Number.isFinite(price) ||
+      price < 0 ||
+      !Number.isFinite(maxOcc) ||
+      maxOcc < 1
+    )
+      return;
     setCreatingRoom(true);
     try {
       const res = await fetch("/api/rooms", {
@@ -388,6 +435,8 @@ export default function AdminPage() {
         body: JSON.stringify({
           name,
           price_per_night: price,
+          max_occupancy: maxOcc,
+          extra_bed_note: newRoom.extra_bed_note.trim() || null,
           description: newRoom.description.trim() || null,
           is_available: true,
           image_url: newRoom.image_url,
@@ -397,6 +446,8 @@ export default function AdminPage() {
         setNewRoom({
           name: "",
           price_per_night: "",
+          max_occupancy: "2",
+          extra_bed_note: "",
           description: "",
           image_url: null,
         });
@@ -425,11 +476,42 @@ export default function AdminPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "same-origin",
-        body: JSON.stringify({ whatsapp_number: whatsapp }),
+        body: JSON.stringify({
+          whatsapp_number: whatsapp,
+          contact_phone: contactPhone,
+          contact_email: contactEmail,
+          meals_enabled: mealsEnabled,
+          meal_breakfast_pp_night:
+            mealBreakfast.trim() === "" ? null : Number(mealBreakfast),
+          meal_lunch_pp_night:
+            mealLunch.trim() === "" ? null : Number(mealLunch),
+          meal_dinner_pp_night:
+            mealDinner.trim() === "" ? null : Number(mealDinner),
+        }),
       });
       if (res.ok) {
         const data = await res.json();
         setWhatsapp(data.whatsapp_number ?? whatsapp);
+        setContactPhone(
+          typeof data.contact_phone === "string" ? data.contact_phone : contactPhone
+        );
+        setContactEmail(
+          typeof data.contact_email === "string" ? data.contact_email : contactEmail
+        );
+        setMealsEnabled(Boolean(data.meals_enabled));
+        setMealBreakfast(
+          data.meal_breakfast_pp_night != null
+            ? String(data.meal_breakfast_pp_night)
+            : ""
+        );
+        setMealLunch(
+          data.meal_lunch_pp_night != null ? String(data.meal_lunch_pp_night) : ""
+        );
+        setMealDinner(
+          data.meal_dinner_pp_night != null
+            ? String(data.meal_dinner_pp_night)
+            : ""
+        );
         return;
       }
       let msg = `Could not save settings (${res.status})`;
@@ -710,7 +792,7 @@ export default function AdminPage() {
             className="mt-8 rounded-xl border border-dashed border-[#36454F]/20 bg-[#F5F5DC]/40 p-4"
           >
             <p className="text-sm font-medium text-[#36454F]">Add a room</p>
-            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               <label className="flex flex-col gap-1 text-sm">
                 Name
                 <input
@@ -740,7 +822,32 @@ export default function AdminPage() {
                   required
                 />
               </label>
+              <label className="flex flex-col gap-1 text-sm">
+                Max guests
+                <input
+                  type="number"
+                  min={1}
+                  max={50}
+                  value={newRoom.max_occupancy}
+                  onChange={(e) =>
+                    setNewRoom((s) => ({ ...s, max_occupancy: e.target.value }))
+                  }
+                  className="min-h-11 rounded-lg border border-[#36454F]/20 px-3"
+                  required
+                />
+              </label>
             </div>
+            <label className="mt-4 flex flex-col gap-1 text-sm">
+              Extra bed note (optional)
+              <input
+                value={newRoom.extra_bed_note}
+                onChange={(e) =>
+                  setNewRoom((s) => ({ ...s, extra_bed_note: e.target.value }))
+                }
+                className="min-h-11 rounded-lg border border-[#36454F]/20 px-3"
+                placeholder="e.g. One rollaway on request — …"
+              />
+            </label>
             <label className="mt-4 flex flex-col gap-1 text-sm">
               Description (optional)
               <textarea
@@ -1101,7 +1208,7 @@ export default function AdminPage() {
 
         <section className="mt-10 rounded-2xl border border-[#36454F]/10 bg-white/50 p-6">
           <h2 className="font-serif text-xl text-[#8A9A5B]">Settings</h2>
-          <form onSubmit={saveSettings} className="mt-6 max-w-xl">
+          <form onSubmit={saveSettings} className="mt-6 max-w-xl space-y-6">
             <label className="flex flex-col gap-2 text-sm text-[#36454F]">
               WhatsApp number (with country code, e.g. 15551234567)
               <input
@@ -1111,6 +1218,77 @@ export default function AdminPage() {
                 className="min-h-12 rounded-lg border border-[#36454F]/20 px-4"
               />
             </label>
+            <label className="flex flex-col gap-2 text-sm text-[#36454F]">
+              Public phone (shown on Contact; optional — leave blank for site
+              default)
+              <input
+                type="text"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                placeholder="+91 98765 43210"
+                className="min-h-12 rounded-lg border border-[#36454F]/20 px-4"
+              />
+            </label>
+            <label className="flex flex-col gap-2 text-sm text-[#36454F]">
+              Public email (optional — leave blank for site default)
+              <input
+                type="email"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                placeholder="stay@example.com"
+                className="min-h-12 rounded-lg border border-[#36454F]/20 px-4"
+              />
+            </label>
+            <label className="flex cursor-pointer items-center gap-3 text-sm text-[#36454F]">
+              <input
+                type="checkbox"
+                checked={mealsEnabled}
+                onChange={(e) => setMealsEnabled(e.target.checked)}
+                className="h-4 w-4 rounded border-[#36454F]/30"
+              />
+              Show meal add-ons on the site
+            </label>
+            <p className="text-xs text-[#36454F]/65">
+              Per guest, per night. Leave blank to hide that meal from guests.
+            </p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <label className="flex flex-col gap-1 text-sm text-[#36454F]">
+                Breakfast (optional)
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={mealBreakfast}
+                  onChange={(e) => setMealBreakfast(e.target.value)}
+                  className="min-h-11 rounded-lg border border-[#36454F]/20 px-3"
+                  placeholder="—"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm text-[#36454F]">
+                Lunch (optional)
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={mealLunch}
+                  onChange={(e) => setMealLunch(e.target.value)}
+                  className="min-h-11 rounded-lg border border-[#36454F]/20 px-3"
+                  placeholder="—"
+                />
+              </label>
+              <label className="flex flex-col gap-1 text-sm text-[#36454F]">
+                Dinner (optional)
+                <input
+                  type="number"
+                  min={0}
+                  step={1}
+                  value={mealDinner}
+                  onChange={(e) => setMealDinner(e.target.value)}
+                  className="min-h-11 rounded-lg border border-[#36454F]/20 px-3"
+                  placeholder="—"
+                />
+              </label>
+            </div>
             <button
               type="submit"
               disabled={settingsSaving}

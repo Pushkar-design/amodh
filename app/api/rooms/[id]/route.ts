@@ -4,7 +4,7 @@ import { createServiceClient } from "@/lib/supabaseServer";
 import { isAdminAuthenticated } from "@/lib/supabaseServerAuth";
 
 const ROOM_SELECT =
-  "id, name, price_per_night, is_available, image_url, description";
+  "id, name, price_per_night, is_available, image_url, description, max_occupancy, extra_bed_note";
 
 export async function PATCH(
   request: NextRequest,
@@ -25,6 +25,8 @@ export async function PATCH(
     is_available?: boolean;
     price_per_night?: number;
     description?: string | null;
+    max_occupancy?: number;
+    extra_bed_note?: string | null;
   };
   try {
     body = await request.json();
@@ -74,6 +76,24 @@ export async function PATCH(
   if (body.description !== undefined) {
     updates.description =
       body.description === null ? null : String(body.description);
+  }
+
+  if (body.max_occupancy !== undefined) {
+    const m = Math.round(Number(body.max_occupancy));
+    if (!Number.isFinite(m) || m < 1 || m > 50) {
+      return NextResponse.json(
+        { error: "max_occupancy must be between 1 and 50" },
+        { status: 400 }
+      );
+    }
+    updates.max_occupancy = m;
+  }
+
+  if (body.extra_bed_note !== undefined) {
+    updates.extra_bed_note =
+      body.extra_bed_note === null
+        ? null
+        : String(body.extra_bed_note).trim() || null;
   }
 
   if (Object.keys(updates).length === 0) {

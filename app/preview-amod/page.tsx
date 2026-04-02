@@ -8,12 +8,12 @@ import { Hero } from "@/components/Hero";
 import { HomeContactSection } from "@/components/HomeContactSection";
 import { HotelAmodhHeader } from "@/components/HotelAmodhHeader";
 
-export default function Home() {
+export default function PreviewAmodPage() {
   return (
     <AmodStayProvider>
       <HotelAmodhHeader />
       <main className="flex-1 pb-40">
-        <Hero />
+        <Hero roomsHref="/preview-amod#rooms" />
         <HeritageSection />
         <AmodRoomsSection />
         <section

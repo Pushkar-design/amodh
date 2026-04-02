@@ -5,6 +5,19 @@ export type Room = {
   is_available: boolean;
   image_url: string | null;
   description: string | null;
+  max_occupancy: number;
+  extra_bed_note: string | null;
+};
+
+/** Public-facing hotel settings from GET /api/settings */
+export type PublicHotelSettings = {
+  whatsapp_number: string;
+  contact_phone: string;
+  contact_email: string;
+  meals_enabled: boolean;
+  meal_breakfast_pp_night: number | null;
+  meal_lunch_pp_night: number | null;
+  meal_dinner_pp_night: number | null;
 };
 
 /** Public availability uses only scheduling fields; admin responses include guest_* */
